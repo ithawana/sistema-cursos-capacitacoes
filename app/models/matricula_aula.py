@@ -1,30 +1,49 @@
+
 from datetime import date, datetime
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .matricula import Matricula
+    from .aula import Aula
+
 
 class FrequenciaStatus(str, Enum):
     PRESENTE = "PRESENTE"
     AUSENTE = "AUSENTE"
 
+
 class Matricula_Aula(SQLModel, table=True):
-    matricula_id: int | None = Field(
-        default=None,
+    id: int | None = Field(default=None, primary_key=True)
+
+    matricula_id: int = Field(
         foreign_key="matricula.id",
-        primary_key=True,
-    )
-    aula_id: int | None = Field(
-        default=None,
-        foreign_key="aula.id",
-        primary_key=True,
+        nullable=False
     )
 
-    id: int = Field(default=None, primary_key=True)
-    frequencia: FrequenciaStatus = Field(default=FrequenciaStatus.PRESENTE)
-    data_aula: date = Field(
-        default=datetime.now().date(), 
-        nullable=False, 
-        table=True
+    aula_id: int = Field(
+        foreign_key="aula.id",
+        nullable=False
     )
-    
-    
+
+    frequencia: FrequenciaStatus = Field(
+        default=FrequenciaStatus.PRESENTE
+    )
+
+    data_aula: date = Field(
+        default_factory=date.today,
+        nullable=False
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "matricula_id",
+            "aula_id",
+            name="uq_matricula_aula"
+        ),
+    )
+
+    matricula: "Matricula" = Relationship(back_populates="frequencias")
+    aula: "Aula" = Relationship(back_populates="frequencias")

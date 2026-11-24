@@ -1,8 +1,13 @@
+
 from datetime import date, datetime
 from sqlalchemy import Column, String
 from sqlmodel import Field, Relationship, SQLModel
+from typing import TYPE_CHECKING
 
-class CursoBase(SQLModel, table=True):
+if TYPE_CHECKING:
+    from .turma import Turma
+
+class CursoBase(SQLModel):
     nome: str = Field(max_length=100, nullable=False, unique=True)
     objetivos: str = Field(min_length=3, max_length=500)
     conteudo_programatico: str = Field(min_length=3, max_length=500)
@@ -10,7 +15,8 @@ class CursoBase(SQLModel, table=True):
 
 class Curso(CursoBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    # relacionar com turma
+
+    turmas: list["Turma"] = Relationship(back_populates="curso")
 
 class CursoCreate(CursoBase):
     pass
