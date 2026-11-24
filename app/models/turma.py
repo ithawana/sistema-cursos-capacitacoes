@@ -40,7 +40,15 @@ class TurmaCreate(TurmaBase):
     instrutor_id: int
 
 
-class TurmaUpdate(TurmaBase):
+class TurmaPublic(TurmaBase):
+    id: int
+    curso_id: int
+    instrutor_id: int
+
+
+
+
+class TurmaUpdate(SQLModel):
     numero_vagas: int | None = Field(default=None, ge=1)
     data_inicio: date | None = None
     data_fim: date | None = None
@@ -48,3 +56,4 @@ class TurmaUpdate(TurmaBase):
     nota_minima: float | None = Field(default=None, ge=0, le=10)
     curso_id: int | None = None
     instrutor_id: int | None = None
+

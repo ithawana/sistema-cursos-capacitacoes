@@ -54,7 +54,14 @@ class MatriculaCreate(MatriculaBase):
     turma_id: int
 
 
-class MatriculaUpdate(MatriculaBase):
+class MatriculaPublic(MatriculaBase):
+    id: int
+    aluno_id: int
+    turma_id: int
+
+
+
+class MatriculaUpdate(SQLModel):
     status: MatriculaStatus | None = None
     data_matricula: date | None = None
     data_cancelamento: date | None = None

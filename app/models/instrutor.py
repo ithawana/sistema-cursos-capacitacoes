@@ -24,6 +24,10 @@ class InstrutorCreate(InstrutorBase):
     pass
 
 
+class InstrutorPublic(InstrutorBase):
+    id: int
+    
+
 class InstrutorUpdate(SQLModel):
     nome: str | None = None
     cpf: str | None = None

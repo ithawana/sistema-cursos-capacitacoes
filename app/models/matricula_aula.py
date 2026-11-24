@@ -47,3 +47,21 @@ class Matricula_Aula(SQLModel, table=True):
 
     matricula: "Matricula" = Relationship(back_populates="frequencias")
     aula: "Aula" = Relationship(back_populates="frequencias")
+
+
+class MatriculaAulaCreate(SQLModel):
+    matricula_id: int
+    aula_id: int
+    frequencia: FrequenciaStatus = FrequenciaStatus.PRESENTE
+
+
+class MatriculaAulaPublic(SQLModel):
+    id: int
+    matricula_id: int
+    aula_id: int
+    frequencia: FrequenciaStatus
+    data_aula: date
+
+
+class MatriculaAulaUpdate(SQLModel):
+    frequencia: FrequenciaStatus | None = None

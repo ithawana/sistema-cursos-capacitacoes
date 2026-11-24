@@ -31,8 +31,14 @@ class AulaCreate(AulaBase):
     turma_id: int
 
 
-class AulaUpdate(AulaBase):
+class AulaPublic(AulaBase):
+    id: int
+    turma_id: int
+
+
+
+class AulaUpdate(SQLModel):
     data: date | None = None
     horario: time | None = None
-    duracao: int | None = None
+    duracao: int | None = Field(default=None, ge=1)
     conteudo: str | None = None
