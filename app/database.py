@@ -1,22 +1,17 @@
 import os
-from dotenv import load_dotenv
 from sqlalchemy import create_engine
+from dotenv import load_dotenv
+from sqlmodel import Session
 from sqlalchemy.orm import sessionmaker
 
-# Carrega as variáveis do arquivo .env
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-if not DATABASE_URL:
-    raise ValueError(
-        "A variável DATABASE_URL não foi configurada."
-    )
+DATABASE_URL = os.environ["DATABASE_URL"]
 
 connect_args = (
     {"check_same_thread": False}
     if DATABASE_URL.startswith("sqlite")
-    else {}
+    else{}
 )
 
 engine = create_engine(
@@ -29,3 +24,7 @@ SessionLocal = sessionmaker(
     autoflush=False,
     bind=engine
 )
+
+def getSession():
+    with Session(engine) as session:
+        yield session
