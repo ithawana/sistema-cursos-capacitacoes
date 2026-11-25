@@ -31,6 +31,11 @@ class AvaliacaoCreate(AvaliacaoBase):
     turma_id: int
 
 
+class AvaliacaoPublic(AvaliacaoBase):
+    id: int
+    turma_id: int
+
+
 class AvaliacaoUpdate(SQLModel):
     titulo: str | None = None
     data: date | None = None
