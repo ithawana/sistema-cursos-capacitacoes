@@ -13,9 +13,28 @@ def criar_aluno(dados: AlunoCreate, session: Session):
     return aluno
 
 
-#Listar alunos
-def listar_alunos(session: Session):
+#Listar alunos com paginação e filtro
+def listar_alunos(
+    session: Session,
+    page: int,
+    size: int,
+    nome: str | None = None
+):
     consulta = select(Aluno)
+
+    if nome:
+        filtro_nome = Aluno.nome.ilike(f"%{nome}%")
+        consulta = consulta.where(filtro_nome)
+
+    offset = (page - 1) * size
+
+    consulta = (
+        consulta
+        .order_by(Aluno.id)
+        .offset(offset)
+        .limit(size)
+    )
+
     alunos = session.exec(consulta).all()
 
     return alunos

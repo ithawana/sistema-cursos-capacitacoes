@@ -94,9 +94,17 @@ def criar_matricula(dados: MatriculaCreate, session: Session):
     return matricula
 
 
-#Listar matriculas
-def listar_matriculas(session: Session):
+#Listar matriculas com filtro
+def listar_matriculas(
+    session: Session,
+    turma_id: int | None = None
+):
     consulta = select(Matricula)
+
+    if turma_id is not None:
+        filtro_turma = Matricula.turma_id == turma_id
+        consulta = consulta.where(filtro_turma)
+
     matriculas = session.exec(consulta).all()
 
     return matriculas

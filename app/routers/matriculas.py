@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.exc import IntegrityError
 from pydantic import ValidationError
 from sqlmodel import Session
+
 
 from app.database import getSession
 from app.models.matricula import (
@@ -42,12 +43,13 @@ def criar_matricula(
         )
 
 
-#Listar matriculas
+#Listar matriculas com filtro
 @router.get("/", response_model=list[MatriculaPublic])
 def listar_matriculas(
+    turma_id: int | None = Query(default=None, description="Filtrar pela turma"),
     session: Session = Depends(getSession),
 ):
-    return crud.listar_matriculas(session)
+    return crud.listar_matriculas(session, turma_id)
 
 
 #Buscar matricula por ID
