@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.exc import IntegrityError
 from pydantic import ValidationError
 from sqlmodel import Session
+from app.services import conclusao
 
 
 from app.database import getSession
@@ -139,4 +140,37 @@ def cancelar_matricula(
         raise HTTPException(
             status_code=409,
             detail="Não é possível cancelar a matrícula"
+        )
+
+#Consultar progresso
+@router.get("/{matricula_id}/progresso")
+def consultar_progresso(
+    matricula_id: int,
+    session: Session = Depends(getSession)
+):
+    return conclusao.consultar_progresso(
+        matricula_id, session
+    )
+
+
+#Finalizar matrícula
+@router.patch(
+    "/{matricula_id}/finalizar",
+    response_model=MatriculaPublic
+)
+def finalizar_matricula(
+    matricula_id: int,
+    session: Session = Depends(getSession)
+):
+    try:
+        return conclusao.finalizar_matricula(
+            matricula_id, session
+        )
+
+    except IntegrityError:
+        session.rollback()
+
+        raise HTTPException(
+            status_code=409,
+            detail="Erro na conclusão da matrícula"
         )
