@@ -1,8 +1,9 @@
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session
 from pydantic import ValidationError
+
 
 from app.database import getSession
 from app.models.aluno import AlunoCreate, AlunoPublic, AlunoUpdate
@@ -33,12 +34,15 @@ def criar_aluno(
         )
 
 
-#Listar alunos
+#Listar alunos com paginação e filtro
 @router.get("/", response_model=list[AlunoPublic])
 def listar_alunos(
+    page: int = Query(1, ge=1, description="Número da página"),
+    size: int = Query(10, ge=1, le=100, description="Quantidade de registros por página"),
+    nome: str | None = Query(default=None, description="Filtrar pelo nome"),
     session: Session = Depends(getSession),
 ):
-    return crud.listar_alunos(session)
+    return crud.listar_alunos(session, page, size, nome)
 
 
 #Buscar aluno por ID
