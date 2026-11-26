@@ -10,7 +10,7 @@ API REST para gerenciamento de cursos, turmas e matrículas, com acompanhamento 
 
 ## 1. Integrantes
 
-- Ithawana de Oliveira Cunha
+- Ithawana de Oliveira Cunhaa
 - Mariana Kessya de Lavor
 - Moacir Silva Abreu
 
