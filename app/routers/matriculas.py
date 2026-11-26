@@ -3,6 +3,8 @@ from sqlalchemy.exc import IntegrityError
 from pydantic import ValidationError
 from sqlmodel import Session
 from app.services import conclusao
+from app.services import certificado
+from app.models.certificado import CertificadoPublic
 
 
 from app.database import getSession
@@ -174,3 +176,40 @@ def finalizar_matricula(
             status_code=409,
             detail="Erro na conclusão da matrícula"
         )
+
+#Emitir certificado
+@router.post(
+    "/{matricula_id}/certificado",
+    response_model=CertificadoPublic,
+    status_code=201
+)
+def emitir_certificado(
+    matricula_id: int,
+    session: Session = Depends(getSession)
+):
+    try:
+        return certificado.emitir_certificado(
+            matricula_id, session
+        )
+
+    except IntegrityError:
+        session.rollback()
+
+        raise HTTPException(
+            status_code=409,
+            detail="Erro na emissão do certificado"
+        )
+
+
+#Consultar certificado
+@router.get(
+    "/{matricula_id}/certificado",
+    response_model=CertificadoPublic
+)
+def consultar_certificado(
+    matricula_id: int,
+    session: Session = Depends(getSession)
+):
+    return certificado.consultar_certificado(
+        matricula_id, session
+    )
