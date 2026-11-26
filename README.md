@@ -1,410 +1,292 @@
 # Sistema de Cursos e Capacitações
 
-## 1. Sobre o projeto
+API REST para gerenciamento de cursos, turmas e matrículas, com acompanhamento de frequência, desempenho acadêmico e conclusão de capacitações.
 
-O **Sistema de Cursos e Capacitações** é uma aplicação desenvolvida em Python para gerenciar cursos de curta e média duração, turmas, instrutores, alunos, matrículas, aulas, avaliações, frequências e resultados.
+**Universidade Federal do Ceará (UFC) — Campus Quixadá**  
+**Disciplina:** QXD0099 — Desenvolvimento de Software para Persistência  
+**Professor:** Francisco Victor da Silva Pinheiro  
+**Trabalho:** TP2 — Desenvolvimento de Sistema com Persistência Relacional  
+**Tema 16:** Sistema de Cursos e Capacitações
 
-O sistema permite acompanhar a participação e o desempenho dos alunos durante as capacitações, calcular seus progressos e determinar a situação de conclusão de cada matrícula, considerando os critérios definidos para cada turma.
+## 1. Integrantes
 
-A aplicação foi desenvolvida como parte do Trabalho Prático 2 da disciplina **QXD0099 – Desenvolvimento de Software para Persistência**, da Universidade Federal do Ceará (UFC), Campus Quixadá.
+- Ithawana de Oliveira Cunha
+- Mariana Kessya de Lavor
+- Moacir Silva Abreu
 
-### Objetivos principais
+## 2. Contexto e objetivo
 
-- Gerenciar cursos, turmas, instrutores e alunos.
-- Realizar matrículas de alunos em diferentes turmas.
-- Registrar aulas, frequências e avaliações.
-- Acompanhar o desempenho individual dos participantes.
-- Identificar alunos aprovados, reprovados, abandonados ou com matrículas em andamento.
-- Consultar o histórico de capacitações dos alunos.
-- Emitir certificados para matrículas que atendam aos critérios estabelecidos.
-- Gerar estatísticas para auxiliar o acompanhamento das capacitações.
+O projeto atende ao cenário de uma organização que oferece cursos de curta e média duração e necessita centralizar o controle de alunos, instrutores, turmas, aulas e avaliações. A aplicação permite distinguir as características permanentes de um curso das informações específicas de cada oferta, representada pela turma.
 
-## 2. Tecnologias utilizadas
+A necessidade central do sistema é acompanhar a participação e o desempenho dos alunos, calcular seu progresso e determinar a situação de conclusão de cada matrícula de acordo com os critérios de frequência e nota estabelecidos para a turma.
+
+Entre as funcionalidades desenvolvidas estão:
+
+- Cadastro, consulta, atualização e exclusão ou cancelamento dos registros principais.
+- Controle de matrículas, vagas, presenças e notas.
+- Cálculo de frequência e desempenho, aprovação e reprovação de alunos.
+- Emissão e consulta de certificados vinculados às matrículas aprovadas.
+- Paginação, filtros, consultas relacionadas, consultas complexas e estatísticas.
+- Persistência relacional, migrações com Alembic e povoamento inicial do banco.
+
+## 3. Tecnologias utilizadas
 
 | Tecnologia | Finalidade |
 |---|---|
 | Python | Linguagem de programação |
-| FastAPI | Desenvolvimento da API REST |
-| SQLModel | Mapeamento objeto-relacional e validação dos dados |
-| SQLAlchemy | Comunicação com o banco de dados |
-| PostgreSQL | Banco de dados principal |
-| SQLite | Banco alternativo para execução local |
-| Alembic | Controle de versões e migrações do banco |
-| Pydantic | Validação dos dados recebidos |
-| Uvicorn | Servidor para execução da API |
-| python-dotenv | Carregamento das variáveis de ambiente |
+| FastAPI | Desenvolvimento da API REST e documentação OpenAPI/Swagger |
+| SQLModel | Definição dos modelos ORM e schemas |
+| SQLAlchemy | Engine, operações de persistência, consultas e relacionamentos |
+| Pydantic | Validação dos dados de entrada e saída |
+| PostgreSQL | Banco de dados relacional principal |
+| SQLite | Alternativa de banco configurável |
+| Alembic | Versionamento e evolução do esquema relacional |
+| psycopg2-binary | Driver de conexão com PostgreSQL |
+| Uvicorn | Servidor ASGI para execução da API |
+| python-dotenv | Carregamento da variável de ambiente `DATABASE_URL` |
 
-## 3. Organização do projeto
-
-A estrutura de diretórios está organizada da seguinte maneira:
+## 4. Organização do projeto
 
 ```text
 sistema-cursos-capacitacoes/
-│
-├── alembic/
-│   └── versions/
-│       ├── 309f587ecc01_criacao_inicial_das_tabelas.py
-│       └── 1f01ee2ca462_adicao_do_atributo_modalidade_na_.py
-│
 ├── app/
-│   ├── crud/
-│   │   ├── aluno.py
-│   │   ├── aula.py
-│   │   ├── avaliacao.py
-│   │   ├── consultas.py
-│   │   ├── curso.py
-│   │   ├── instrutor.py
-│   │   ├── matricula.py
-│   │   └── turma.py
-│   │
-│   ├── models/
-│   │   ├── aluno.py
-│   │   ├── aula.py
-│   │   ├── avaliacao.py
-│   │   ├── certificado.py
-│   │   ├── curso.py
-│   │   ├── instrutor.py
-│   │   ├── matricula.py
-│   │   ├── matricula_aula.py
-│   │   ├── resultado.py
-│   │   └── turma.py
-│   │
-│   ├── routers/
-│   │   ├── alunos.py
-│   │   ├── aulas.py
-│   │   ├── avaliacoes.py
-│   │   ├── consultas.py
-│   │   ├── cursos.py
-│   │   ├── frequencias.py
-│   │   ├── instrutores.py
-│   │   ├── matriculas.py
-│   │   ├── resultados.py
-│   │   └── turmas.py
-│   │
-│   ├── schemas/
-│   │   ├── consultas.py
-│   │   └── paginacao.py
-│   │
-│   ├── services/
-│   │   ├── certificado.py
-│   │   ├── conclusao.py
-│   │   ├── frequencia.py
-│   │   └── resultado.py
-│   │
-│   ├── database.py
-│   └── main.py
-│
+│   ├── crud/               # Operações de persistência e consultas
+│   ├── models/             # Entidades ORM e schemas das entidades
+│   ├── routers/            # Endpoints da API organizados com APIRouter
+│   ├── schemas/            # Estruturas de resposta de consultas e paginação
+│   ├── services/           # Frequência, resultados, conclusão e certificado
+│   ├── database.py         # Conexão com o banco e sessões
+│   └── main.py             # Instância FastAPI e registro dos routers
+├── alembic/
+│   ├── env.py
+│   ├── script.py.mako
+│   └── versions/           # Revisões do esquema do banco
 ├── scripts/
-│   └── povoamento.py
-│
-├── .env.example
+│   └── povoamento.py       # Inserção de dados de demonstração
+├── .env.example            # Modelo de configuração local
 ├── .gitignore
 ├── alembic.ini
-├── README.md
-└── requirements.txt
+├── requirements.txt
+└── README.md
 ```
 
-### Responsabilidade de cada diretório
+A aplicação separa as responsabilidades entre os routers, que recebem as requisições HTTP, os CRUDs e serviços, que executam as operações e regras de negócio, e os models, que representam os dados persistidos. Os schemas `Create`, `Public` e `Update` das entidades são definidos nos respectivos arquivos de models, conforme o padrão do SQLModel utilizado no projeto.
 
-- **app/models:** define as entidades, seus atributos, chaves primárias, chaves estrangeiras e relacionamentos.
-- **app/crud:** concentra as operações de criação, consulta, atualização e exclusão dos registros.
-- **app/routers:** disponibiliza os endpoints da API e recebe as requisições HTTP.
-- **app/services:** implementa funcionalidades específicas e regras de negócio, como frequência, resultados, conclusão e emissão de certificados.
-- **app/schemas:** define estruturas de dados utilizadas nas consultas e respostas específicas.
-- **app/database.py:** configura a conexão com o banco e disponibiliza as sessões.
-- **scripts:** contém scripts auxiliares, incluindo o povoamento inicial do banco.
-- **alembic:** armazena as configurações e versões das migrações do banco de dados.
+O arquivo `database.py` configura a `engine` a partir da variável `DATABASE_URL`. A dependência `getSession()` disponibiliza uma sessão para as operações da API e encerra a sessão ao finalizar seu uso.
 
-## 4. Modelo de dados
+## 5. Modelo de dados
 
-O sistema possui dez entidades principais:
+O sistema possui dez tabelas de domínio, sendo sete entidades principais com operações CRUD e três entidades destinadas ao registro de frequência, resultados e certificados.
 
-| Entidade | Descrição |
+| Entidade | Responsabilidade |
 |---|---|
-| Aluno | Armazena os dados pessoais dos participantes. |
-| Instrutor | Armazena os dados dos profissionais responsáveis pelas turmas. |
-| Curso | Contém nome, objetivos, conteúdo programático e carga horária. |
-| Turma | Representa uma oferta de determinado curso, com datas, vagas, modalidade e critérios de conclusão. |
-| Matrícula | Relaciona um aluno a uma turma e registra sua situação. |
-| Aula | Armazena as aulas realizadas em cada turma. |
-| Avaliação | Define as avaliações aplicadas em cada turma. |
-| Matrícula_Aula | Relaciona matrículas e aulas, registrando a frequência. |
-| ResultadoAvaliacao | Registra as notas dos alunos em cada avaliação. |
-| Certificado | Armazena os certificados emitidos para as matrículas. |
+| Aluno | Dados dos participantes das capacitações |
+| Instrutor | Dados dos responsáveis pelas turmas |
+| Curso | Nome, objetivos, conteúdo programático e carga horária prevista |
+| Turma | Oferta específica de um curso, com instrutor, vagas, período, modalidade e critérios de aprovação |
+| Matrícula | Inscrição de um aluno em uma turma e sua situação acadêmica |
+| Aula | Data, horário, duração em minutos e conteúdo de uma aula |
+| Avaliação | Atividade avaliativa da turma, com nota máxima e peso |
+| Matrícula_Aula | Registro de presença ou ausência de uma matrícula em uma aula |
+| ResultadoAvaliacao | Nota e comentário associados a uma matrícula e uma avaliação |
+| Certificado | Registro de emissão para uma matrícula aprovada |
 
-### Principais relacionamentos
+### 5.1. Relacionamentos entre as entidades
 
-- Um curso pode possuir várias turmas (1:N).
-- Um instrutor pode ser responsável por várias turmas (1:N).
-- Uma turma pertence a um curso e possui um instrutor responsável.
-- Uma turma pode possuir várias aulas (1:N).
-- Uma turma pode possuir várias avaliações (1:N).
-- Um aluno pode possuir várias matrículas (1:N).
-- Uma turma pode possuir várias matrículas (1:N).
-- Alunos e turmas possuem relacionamento N:N, realizado por meio da entidade Matrícula.
-- Matrículas e aulas possuem relacionamento N:N, realizado por meio da entidade Matrícula_Aula.
-- Matrículas e avaliações possuem relacionamento N:N, realizado por meio da entidade ResultadoAvaliacao.
-- Uma matrícula pode possuir um certificado (1:1).
+- **1:1 (opcional):** uma matrícula pode possuir no máximo um certificado, e cada certificado pertence a uma única matrícula.
+- **1:N:** um curso possui várias turmas; um instrutor pode ministrar várias turmas; uma turma possui várias aulas, avaliações e matrículas; um aluno pode possuir várias matrículas.
+- **N:N:** Aluno e Turma são associados por Matrícula; Matrícula e Aula, por Matrícula_Aula; Matrícula e Avaliação, por ResultadoAvaliacao.
 
-### Restrições de integridade
+O aluno pode participar de diferentes turmas de um mesmo curso, pois a unicidade da matrícula considera o aluno e a turma, não o curso.
 
-O sistema utiliza chaves primárias, chaves estrangeiras, campos obrigatórios e restrições de unicidade.
+### 5.2. Modelo relacional
 
-Entre as principais regras:
+Os nomes abaixo correspondem às tabelas do banco. **PK** indica chave primária, **FK** indica chave estrangeira e **UQ** indica restrição de unicidade.
 
-- CPF e e-mail de alunos devem ser únicos.
-- CPF e e-mail de instrutores devem ser únicos.
-- O nome do curso deve ser único.
-- Um aluno não pode possuir duas matrículas na mesma turma.
-- Uma matrícula não pode registrar duas frequências para a mesma aula.
-- Uma matrícula não pode possuir dois resultados para a mesma avaliação.
-- Um certificado está associado a uma única matrícula.
-- O código de validação do certificado deve ser único.
+| Tabela | PK | FK | Demais atributos |
+|---|---|---|---|
+| `aluno` | `id` | — | `nome`, `cpf` (UQ), `email` (UQ), `data_nascimento` |
+| `instrutor` | `id` | — | `nome`, `cpf` (UQ), `email` (UQ), `data_nascimento` |
+| `curso` | `id` | — | `nome` (UQ), `objetivos`, `conteudo_programatico`, `carga_horaria` |
+| `turma` | `id` | `curso_id → curso.id`, `instrutor_id → instrutor.id` | `numero_vagas`, `data_inicio`, `data_fim`, `frequencia_minima`, `nota_minima`, `modalidade` |
+| `matricula` | `id` | `aluno_id → aluno.id`, `turma_id → turma.id` | `status`, `data_matricula`, `data_cancelamento` |
+| `aula` | `id` | `turma_id → turma.id` | `data`, `horario`, `duracao`, `conteudo` |
+| `avaliacao` | `id` | `turma_id → turma.id` | `titulo`, `data`, `nota_maxima`, `peso` |
+| `matricula_aula` | `id` | `matricula_id → matricula.id`, `aula_id → aula.id` | `frequencia`, `data_aula` |
+| `resultadoavaliacao` | `id` | `matricula_id → matricula.id`, `avaliacao_id → avaliacao.id` | `nota`, `comentario` |
+| `certificado` | `id` | `matricula_id → matricula.id` (UQ) | `data_emissao`, `codigo_validacao` (UQ) |
 
-## 5. Requisitos para execução
+Restrições de unicidade compostas:
 
-Antes de iniciar, é necessário possuir:
+- `matricula`: (`aluno_id`, `turma_id`).
+- `matricula_aula`: (`matricula_id`, `aula_id`).
+- `resultadoavaliacao`: (`matricula_id`, `avaliacao_id`).
 
-- Python 3.10 ou superior.
-- PostgreSQL instalado e em execução, para utilizar o banco principal.
-- Git instalado.
-- Um editor de código, como Visual Studio Code.
-- Acesso ao repositório do projeto.
+Os models também definem campos obrigatórios e validações de valores, como carga horária de 1 a 200 horas, duração positiva de aulas, frequência mínima de 0 a 100, notas de 0 a 10 e peso positivo de avaliações. As validações de entrada são complementadas pelas regras de negócio nos CRUDs e serviços.
+
+O Alembic mantém ainda a tabela auxiliar `alembic_version`, que não é uma entidade do domínio.
 
 ## 6. Instalação e configuração do ambiente
 
-### 6.1. Clonar o repositório
+### 6.1. Pré-requisitos
 
-Abra o terminal e execute:
+- Python 3.10 ou superior.
+- Git, caso a instalação seja feita por clonagem.
+- PostgreSQL instalado e em execução para utilizar o banco principal.
+- pgAdmin (opcional), para visualizar e administrar o PostgreSQL.
+
+### 6.2. Obter o projeto
+
+Clone o repositório ou extraia o ZIP do projeto e abra a pasta que contém `requirements.txt` e `alembic.ini`.
+
+<!-- PREENCHER: substituir URL_DO_REPOSITORIO pela URL real do GitHub antes da entrega. -->
 
 ```bash
 git clone URL_DO_REPOSITORIO
-```
-
-Entre na pasta do projeto:
-
-```bash
 cd sistema-cursos-capacitacoes
 ```
 
-Substitua `URL_DO_REPOSITORIO` pelo endereço real do repositório GitHub.
+### 6.3. Criar e ativar o ambiente virtual
 
-### 6.2. Criar o ambiente virtual
-
-O ambiente virtual permite instalar as dependências do projeto de maneira isolada.
-
-No Windows, execute:
+**Windows (PowerShell):**
 
 ```powershell
 py -m venv .venv
-```
-
-### 6.3. Ativar o ambiente virtual
-
-No PowerShell:
-
-```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-Caso o PowerShell bloqueie a execução do script, utilize:
+Se o PowerShell bloquear o script de ativação, permita sua execução na sessão atual com `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` e repita a ativação.
 
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-```
-
-Depois, execute novamente o comando de ativação.
-
-No Linux ou macOS:
+**Linux/macOS:**
 
 ```bash
+python3 -m venv .venv
 source .venv/bin/activate
 ```
-
-Quando o ambiente estiver ativado, o terminal apresentará o nome `.venv` antes do caminho atual.
 
 ### 6.4. Instalar as dependências
 
 Com o ambiente virtual ativado, execute:
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
-
-O arquivo `requirements.txt` contém as bibliotecas necessárias para executar o sistema.
 
 ## 7. Configuração do banco de dados
 
-O projeto utiliza a variável de ambiente `DATABASE_URL` para definir qual banco de dados será utilizado.
+### 7.1. PostgreSQL — banco principal
 
-A configuração é carregada pelo arquivo `app/database.py` por meio da biblioteca `python-dotenv`.
-
-### 7.1. Criar o banco PostgreSQL
-
-Primeiramente, abra o PostgreSQL utilizando o pgAdmin ou o terminal e crie um banco de dados com o nome:
+Crie um banco local chamado `sistema_curso`, utilizando o pgAdmin ou o terminal do PostgreSQL. Se optar pelo SQL, execute o comando conectado a um banco existente, como `postgres`:
 
 ```sql
 CREATE DATABASE sistema_curso;
 ```
 
-Cada integrante deverá possuir seu próprio banco de dados local.
+Na raiz do projeto, copie `.env.example` para `.env`.
 
-### 7.2. Configurar o arquivo .env
+**Windows:**
 
-Na raiz do projeto, copie o arquivo `.env.example` e crie um novo arquivo chamado `.env`.
+```powershell
+Copy-Item .env.example .env
+```
 
-O conteúdo deverá seguir este formato:
+**Linux/macOS:**
 
-```env
+```bash
+cp .env.example .env
+```
+
+Edite o arquivo `.env` com as credenciais locais:
+
+```dotenv
 DATABASE_URL=postgresql+psycopg2://postgres:SUA_SENHA@localhost:5432/sistema_curso
 ```
 
-Substitua:
+Substitua `SUA_SENHA` pela senha do PostgreSQL e ajuste usuário, porta e nome do banco, se necessário. Caracteres especiais da senha que interferem na URL devem ser codificados adequadamente.
 
-- `postgres`: pelo usuário do PostgreSQL.
-- `SUA_SENHA`: pela senha configurada no PostgreSQL.
-- `localhost`: pelo endereço do servidor.
-- `5432`: pela porta utilizada pelo PostgreSQL.
-- `sistema_curso`: pelo nome do banco criado.
+**Não envie o arquivo `.env` ao GitHub.** Cada integrante utiliza suas próprias credenciais de conexão. O arquivo `.env.example` é apenas um modelo.
 
-**Importante:** o arquivo `.env` contém informações de conexão e não deve ser enviado ao GitHub. Cada integrante deve configurar seu próprio arquivo localmente.
+### 7.2. SQLite — banco alternativo
 
-O arquivo `.env.example` serve apenas como modelo de configuração.
+A aplicação permite trocar o banco por meio da variável `DATABASE_URL`, sem alterar models, routers ou CRUDs.
 
-### 7.3. Utilizar SQLite (alternativa)
+Para utilizar SQLite, interrompa o servidor e substitua temporariamente o conteúdo do `.env` por:
 
-O projeto também permite configurar a conexão com SQLite.
-
-Para isso, altere a variável `DATABASE_URL` no arquivo `.env`:
-
-```env
+```dotenv
 DATABASE_URL=sqlite:///./database.db
 ```
 
-O arquivo `database.db` será utilizado como banco SQLite no diretório do projeto.
+Aplique as migrações nesse banco, execute o povoamento se o banco estiver vazio e inicie a API seguindo as seções 8 a 10. Para retornar ao PostgreSQL, restaure a URL anterior e reinicie a aplicação.
 
-Para retornar ao PostgreSQL, basta restaurar a configuração anterior.
+Os dois bancos são independentes: a troca da conexão não transfere automaticamente os dados de um banco para o outro.
 
-A alteração da conexão é realizada por variável de ambiente, sem necessidade de modificar os modelos, routers ou operações CRUD.
+## 8. Migrações com Alembic
 
-## 8. Configuração e execução das migrações com Alembic
+O projeto possui duas revisões concluídas, que registram a criação inicial e a evolução do esquema do banco de dados.
 
-O projeto utiliza Alembic para controlar a evolução da estrutura do banco de dados.
+| Revisão | Alteração realizada |
+|---|---|
+| `309f587ecc01` | Criação inicial das dez tabelas de domínio, chaves e restrições |
+| `1f01ee2ca462` | Inclusão do atributo `modalidade` na tabela `turma` |
 
-As migrações permitem criar e modificar tabelas e colunas sem precisar excluir e recriar manualmente o banco.
+A segunda revisão adiciona uma coluna de texto com limite de 20 caracteres, obrigatória e com valor padrão `Presencial`. O valor padrão definido no banco permite preencher os registros existentes sem excluir ou recriar a tabela.
 
-### 8.1. Estrutura inicial das migrações
-
-O projeto possui duas versões:
-
-**Primeira migração — `309f587ecc01`**
-
-Responsável pela criação inicial das dez tabelas do sistema e suas respectivas chaves primárias, chaves estrangeiras e restrições de integridade.
-
-**Segunda migração — `1f01ee2ca462`**
-
-Responsável por adicionar o atributo `modalidade` à entidade Turma.
-
-O atributo possui as seguintes características:
-
-- Tipo: texto.
-- Limite: 20 caracteres.
-- Obrigatório.
-- Valor padrão: `Presencial`.
-
-A migração utiliza um valor padrão no banco para preencher os registros que já existiam antes da inclusão da coluna.
-
-### 8.2. Aplicar as migrações no banco local
-
-Depois de configurar o `.env`, certifique-se de estar na raiz do projeto e execute:
-
-```bash
-python -m alembic current
+```text
+<base> → 309f587ecc01 → 1f01ee2ca462 (head)
 ```
 
-Esse comando consulta a versão de migração atualmente aplicada no banco.
+### 8.1. Aplicar as revisões em uma nova instalação
 
-Para aplicar todas as migrações pendentes, execute:
+Depois de configurar o banco, execute na raiz do projeto:
 
 ```bash
 python -m alembic upgrade head
 ```
 
-O comando aplica as versões necessárias até alcançar a revisão mais recente.
+Esse comando aplica somente as revisões ainda não executadas no banco escolhido. Não é necessário gerar uma nova revisão, pois os arquivos das duas migrações já estão incluídos no repositório.
 
-Para conferir novamente a versão:
+### 8.2. Consultar a versão e o histórico
 
 ```bash
 python -m alembic current
-```
-
-A versão final esperada é:
-
-```text
-1f01ee2ca462
-```
-
-Para consultar o histórico de migrações:
-
-```bash
 python -m alembic history
 ```
 
-### 8.3. Quando houver alterações futuras no modelo de dados
-
-Sempre que um integrante modificar a estrutura de uma entidade, como adicionar uma coluna, criar uma tabela ou modificar uma chave estrangeira, a alteração deverá ser registrada por meio de uma nova migração.
-
-Para gerar uma migração automaticamente, execute:
-
-```bash
-python -m alembic revision --autogenerate -m "descricao_da_alteracao"
-```
-
-O arquivo será criado dentro de:
+A versão atual esperada após a aplicação das duas migrações é:
 
 ```text
-alembic/versions/
+1f01ee2ca462 (head)
 ```
 
-Antes de aplicar a migração, é necessário abrir o arquivo gerado e conferir se as operações estão corretas.
+A evolução da primeira para a segunda revisão foi executada com sucesso no PostgreSQL local durante o desenvolvimento. O comando `current` confirmou a revisão `1f01ee2ca462 (head)`.
 
-Depois, aplique a alteração:
+A versão também pode ser consultada pelo Query Tool do pgAdmin:
 
-```bash
-python -m alembic upgrade head
+```sql
+SELECT * FROM public.alembic_version;
 ```
 
-**Importante:** todos os integrantes devem receber os arquivos das novas migrações pelo Git e executar `python -m alembic upgrade head` em seus próprios bancos locais.
+As migrações estão prontas e versionadas. Os comandos desta seção servem para preparar novos ambientes ou demonstrar o funcionamento do Alembic, não representam uma etapa de implementação pendente.
 
-Não é necessário apagar as tabelas ou criar um banco novo para cada alteração estrutural.
+## 9. Povoamento inicial
 
-Não execute `downgrade` sem compreender as consequências para os dados existentes.
+O arquivo `scripts/povoamento.py` prepara os dados de demonstração do sistema, reutilizando os CRUDs e os serviços existentes para respeitar as regras de negócio e os relacionamentos.
 
-## 9. Povoamento inicial do banco
-
-O projeto possui um script responsável por inserir dados iniciais para permitir a execução e demonstração das funcionalidades.
-
-O arquivo está localizado em:
-
-```text
-scripts/povoamento.py
-```
-
-### 9.1. Executar o povoamento
-
-Depois de aplicar as migrações, execute:
+Com as migrações aplicadas e o banco sem registros de domínio, execute:
 
 ```bash
 python -m scripts.povoamento
 ```
 
-O script utiliza as operações CRUD e os serviços existentes para cadastrar os registros e respeitar os relacionamentos entre as entidades.
+Saída de sucesso:
 
-### 9.2. Dados inseridos
+```text
+Banco povoado com sucesso!
+```
 
-O povoamento cria os seguintes registros:
+### 9.1. Dados gerados
 
-| Entidade | Quantidade |
+| Entidade | Quantidade prevista em um povoamento completo |
 |---|---:|
 | Alunos | 12 |
 | Instrutores | 2 |
@@ -413,377 +295,263 @@ O povoamento cria os seguintes registros:
 | Matrículas | 16 |
 | Aulas | 10 |
 | Avaliações | 5 |
+| Registros de frequência | 52 |
+| Resultados de avaliações | 26 |
+| Certificados | 5 |
 
-Também são registrados dados de frequência e resultados de avaliações.
+Os dados são fictícios. As datas são calculadas a partir do dia de execução do script, permitindo criar duas turmas encerradas e uma turma em andamento.
 
-O script contempla diferentes situações de matrícula, incluindo cancelamento, abandono e finalização conforme os critérios estabelecidos.
+A distribuição prevista das matrículas é de cinco aprovadas, cinco reprovadas, quatro ativas, uma cancelada e uma abandonada. A conclusão das turmas encerradas é calculada pelo próprio serviço de conclusão, e os certificados são emitidos automaticamente para as matrículas aprovadas.
 
-### 9.3. Atenção ao executar novamente
+Essa distribuição permite demonstrar a paginação, os filtros, as cardinalidades 1:1, 1:N e N:N, os relatórios de frequência, as consultas de histórico e as estatísticas. As quantidades acima são as previstas pelo código em um banco vazio, antes de cadastros ou alterações realizados em testes.
 
-O script possui uma verificação inicial que identifica se alguma das principais tabelas já possui registros.
+### 9.2. Reexecução do script
 
-Caso encontre registros, a execução é interrompida com a mensagem:
+O povoamento foi executado com sucesso no PostgreSQL local durante o desenvolvimento. Em um banco já povoado, não é necessário executá-lo novamente.
 
-```text
-O banco já possui registros. Utilize um banco vazio.
-```
+O script verifica a existência de registros e interrompe a execução quando encontra dados nas tabelas verificadas, evitando a duplicação dos cadastros. Como as operações de cadastro persistem os registros ao longo do processo, uma execução interrompida pode deixar dados parciais; o script não completa automaticamente esse povoamento. Para uma nova demonstração, utilize preferencialmente outro banco vazio, sem apagar os dados existentes.
 
-Isso evita duplicidades, mas significa que o script não completa automaticamente um povoamento parcial.
+## 10. Execução da aplicação
 
-Portanto, execute o povoamento somente uma vez em cada banco recém-configurado e não o execute novamente sem verificar os dados existentes.
-
-O resultado esperado após a execução bem-sucedida é:
-
-```text
-Banco povoado com sucesso!
-```
-
-## 10. Executar a aplicação
-
-Com o ambiente virtual ativado, as dependências instaladas, o banco configurado e as migrações aplicadas, execute:
+Na raiz do projeto, com o ambiente virtual ativado e o banco configurado, execute:
 
 ```bash
-uvicorn app.main:app --reload
+python -m uvicorn app.main:app --reload
 ```
 
-O parâmetro `--reload` permite reiniciar automaticamente o servidor quando os arquivos do projeto forem modificados.
+A API fica disponível localmente em `http://127.0.0.1:8000`.
 
-Quando o servidor estiver funcionando, a API estará disponível em:
+- [Swagger UI — documentação e testes dos endpoints](http://127.0.0.1:8000/docs)
+- [Especificação OpenAPI](http://127.0.0.1:8000/openapi.json)
 
-```text
-http://127.0.0.1:8000
+No Swagger, selecione um endpoint, clique em **Try it out**, informe os parâmetros ou o corpo JSON e clique em **Execute**. Para encerrar o servidor, pressione `Ctrl + C` no terminal.
+
+## 11. Principais endpoints
+
+### 11.1. Operações CRUD das entidades principais
+
+| Recurso | Cadastro e listagem | Consulta, atualização e exclusão |
+|---|---|---|
+| Aluno | `POST /alunos/` · `GET /alunos/` | `GET`, `PATCH`, `DELETE /alunos/{aluno_id}` |
+| Instrutor | `POST /instrutores/` · `GET /instrutores/` | `GET`, `PATCH`, `DELETE /instrutores/{instrutor_id}` |
+| Curso | `POST /cursos/` · `GET /cursos/` | `GET`, `PATCH`, `DELETE /cursos/{curso_id}` |
+| Turma | `POST /turmas/` · `GET /turmas/` | `GET`, `PATCH`, `DELETE /turmas/{turma_id}` |
+| Matrícula | `POST /matriculas/` · `GET /matriculas/` | `GET`, `PATCH`, `DELETE /matriculas/{matricula_id}` |
+| Aula | `POST /aulas/` · `GET /aulas/` | `GET`, `PATCH`, `DELETE /aulas/{aula_id}` |
+| Avaliação | `POST /avaliacoes/` · `GET /avaliacoes/` | `GET`, `PATCH`, `DELETE /avaliacoes/{avaliacao_id}` |
+
+O método `PATCH` permite a atualização parcial. O `DELETE` de matrícula representa cancelamento lógico, preservando o registro e armazenando a data de cancelamento. As exclusões de outras entidades consideram a existência de registros dependentes.
+
+### 11.2. Operações específicas do domínio
+
+| Método | Endpoint | Finalidade |
+|---|---|---|
+| POST | `/frequencias/` | Registrar presença ou ausência de um aluno em uma aula |
+| POST | `/resultados-avaliacao/` | Registrar a nota de uma matrícula em uma avaliação |
+| GET | `/matriculas/{matricula_id}/progresso` | Consultar frequência, desempenho e situação |
+| PATCH | `/matriculas/{matricula_id}/finalizar` | Persistir a aprovação ou reprovação calculada |
+| POST | `/matriculas/{matricula_id}/certificado` | Emitir certificado para matrícula aprovada |
+| GET | `/matriculas/{matricula_id}/certificado` | Consultar certificado emitido |
+
+A emissão gera um registro no banco com data e código único no formato `CERT-{matricula_id}`. Não há geração de arquivos PDF; o certificado é representado como recurso da API.
+
+### 11.3. Exemplo de registro de frequência e nota
+
+**POST `/frequencias/`:**
+
+```json
+{
+  "matricula_id": 11,
+  "aula_id": 9,
+  "frequencia": "PRESENTE"
+}
 ```
 
-### 10.1. Documentação interativa
+**POST `/resultados-avaliacao/`:**
 
-O FastAPI disponibiliza uma interface Swagger para visualizar e testar os endpoints.
-
-Acesse:
-
-```text
-http://127.0.0.1:8000/docs
+```json
+{
+  "matricula_id": 11,
+  "avaliacao_id": 5,
+  "nota": 8.5,
+  "comentario": "Bom desempenho"
+}
 ```
 
-Por meio dessa interface, é possível:
+Os IDs são ilustrativos: para executar, escolha uma matrícula ativa e uma aula ou avaliação da mesma turma, sem registro anterior. O povoamento já pode ter registrado presenças e notas para os IDs de exemplo.
 
-- Visualizar os endpoints disponíveis.
-- Consultar os parâmetros necessários.
-- Enviar requisições HTTP.
-- Cadastrar e consultar registros.
-- Atualizar e cancelar registros.
-- Visualizar as respostas da API e os códigos HTTP.
+## 12. Paginação e filtros
 
-Para encerrar a aplicação, pressione `Ctrl + C` no terminal.
+A listagem de alunos utiliza `offset()` e `limit()` na consulta SQLModel, evitando carregar todos os registros para depois paginar em memória. Os resultados são ordenados pelo identificador do aluno.
 
-## 11. Principais endpoints da API
+| Parâmetro | Comportamento |
+|---|---|
+| `page` | Página solicitada, iniciando em 1 (padrão: 1) |
+| `size` | Quantidade por página, de 1 a 100 (padrão: 10) |
+| `nome` | Busca parcial por nome, sem distinguir maiúsculas e minúsculas |
 
-Os endpoints estão organizados por routers, separados conforme as responsabilidades de cada entidade.
+O deslocamento é calculado por `(page - 1) * size`. A resposta contém a lista de alunos da página solicitada.
 
-### 11.1. Alunos
+Exemplos de consultas:
 
-Prefixo: `/alunos`
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| POST | `/alunos/` | Cadastrar aluno |
-| GET | `/alunos/` | Listar alunos |
-| GET | `/alunos/{aluno_id}` | Consultar aluno |
-| PATCH | `/alunos/{aluno_id}` | Atualizar aluno |
-| DELETE | `/alunos/{aluno_id}` | Excluir aluno |
-
-A listagem permite paginação e filtro pelo nome.
-
-Exemplo:
-
-```text
-GET /alunos/?page=1&size=10&nome=Ana
-```
-
-### 11.2. Instrutores
-
-Prefixo: `/instrutores`
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| POST | `/instrutores/` | Cadastrar instrutor |
-| GET | `/instrutores/` | Listar instrutores |
-| GET | `/instrutores/{instrutor_id}` | Consultar instrutor |
-| PATCH | `/instrutores/{instrutor_id}` | Atualizar instrutor |
-| DELETE | `/instrutores/{instrutor_id}` | Excluir instrutor |
-
-### 11.3. Cursos
-
-Prefixo: `/cursos`
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| POST | `/cursos/` | Cadastrar curso |
-| GET | `/cursos/` | Listar cursos |
-| GET | `/cursos/{curso_id}` | Consultar curso |
-| PATCH | `/cursos/{curso_id}` | Atualizar curso |
-| DELETE | `/cursos/{curso_id}` | Excluir curso |
-
-### 11.4. Turmas
-
-Prefixo: `/turmas`
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| POST | `/turmas/` | Cadastrar turma |
-| GET | `/turmas/` | Listar turmas |
-| GET | `/turmas/{turma_id}` | Consultar turma |
-| PATCH | `/turmas/{turma_id}` | Atualizar turma |
-| DELETE | `/turmas/{turma_id}` | Excluir turma |
-
-O cadastro e a atualização de turmas consideram informações como curso, instrutor, número de vagas, datas, frequência mínima, nota mínima e modalidade.
-
-### 11.5. Matrículas
-
-Prefixo: `/matriculas`
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| POST | `/matriculas/` | Criar matrícula |
-| GET | `/matriculas/` | Listar matrículas |
-| GET | `/matriculas/{matricula_id}` | Consultar matrícula |
-| PATCH | `/matriculas/{matricula_id}` | Atualizar matrícula |
-| DELETE | `/matriculas/{matricula_id}` | Cancelar matrícula |
-| GET | `/matriculas/{matricula_id}/progresso` | Consultar progresso |
-| PATCH | `/matriculas/{matricula_id}/finalizar` | Finalizar matrícula |
-| POST | `/matriculas/{matricula_id}/certificado` | Emitir certificado |
-| GET | `/matriculas/{matricula_id}/certificado` | Consultar certificado |
-
-A listagem permite filtrar as matrículas pelo identificador da turma.
-
-Exemplo:
-
-```text
+```http
+GET /alunos/?page=1&size=5
+GET /alunos/?page=2&size=5
+GET /alunos/?nome=Ana
 GET /matriculas/?turma_id=1
+GET /aulas/?turma_id=1
+GET /avaliacoes/?turma_id=1
 ```
 
-### 11.6. Aulas
+O nome do aluno é um critério geral. O vínculo com a turma e a situação da matrícula são critérios específicos do domínio, além dos demais filtros disponíveis nas consultas relacionadas e complexas.
 
-Prefixo: `/aulas`
+## 13. Consultas específicas, complexas e estatísticas
 
-| Método | Endpoint | Descrição |
-|---|---|---|
-| POST | `/aulas/` | Cadastrar aula |
-| GET | `/aulas/` | Listar aulas |
-| GET | `/aulas/{aula_id}` | Consultar aula |
-| PATCH | `/aulas/{aula_id}` | Atualizar aula |
-| DELETE | `/aulas/{aula_id}` | Excluir aula |
+### 13.1. Consultas envolvendo relacionamentos (F10)
 
-A listagem permite filtrar aulas por turma.
+| Endpoint GET | Entidades e finalidade |
+|---|---|
+| `/consultas/turmas/{turma_id}/participantes` | Matrícula e Aluno: lista os participantes da turma, com filtro opcional por `status` |
+| `/consultas/alunos/{aluno_id}/historico` | Matrícula, Turma, Curso e Instrutor: recupera o histórico de capacitações do aluno |
+| `/consultas/matriculas/situacao` | Matrícula, Aluno, Turma e Curso: busca por `status` obrigatório e filtros opcionais `curso_id` e `turma_id` |
 
-### 11.7. Avaliações
-
-Prefixo: `/avaliacoes`
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| POST | `/avaliacoes/` | Cadastrar avaliação |
-| GET | `/avaliacoes/` | Listar avaliações |
-| GET | `/avaliacoes/{avaliacao_id}` | Consultar avaliação |
-| PATCH | `/avaliacoes/{avaliacao_id}` | Atualizar avaliação |
-| DELETE | `/avaliacoes/{avaliacao_id}` | Excluir avaliação |
-
-A listagem permite filtrar avaliações por turma.
-
-### 11.8. Frequências
-
-Prefixo: `/frequencias`
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| POST | `/frequencias/` | Registrar frequência de uma matrícula em uma aula |
-
-A frequência pode ser registrada como `PRESENTE` ou `AUSENTE`.
-
-### 11.9. Resultados das avaliações
-
-Prefixo: `/resultados-avaliacao`
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| POST | `/resultados-avaliacao/` | Registrar resultado de avaliação |
-
-O resultado relaciona uma matrícula a uma avaliação e armazena a nota obtida.
-
-## 12. Consultas específicas do domínio
-
-O sistema possui um conjunto de consultas que utilizam relacionamentos entre as entidades para recuperar informações mais elaboradas.
-
-Prefixo: `/consultas`
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| GET | `/consultas/turmas/{turma_id}/participantes` | Consultar participantes de uma turma |
-| GET | `/consultas/alunos/{aluno_id}/historico` | Consultar histórico de capacitações de um aluno |
-| GET | `/consultas/matriculas/situacao` | Consultar matrículas por situação |
-| GET | `/consultas/cursos/mais-concluintes` | Identificar cursos com maior quantidade de concluintes |
-| GET | `/consultas/turmas/{turma_id}/frequencia` | Consultar frequência dos alunos de uma turma |
-| GET | `/consultas/estatisticas` | Consultar estatísticas gerais |
-
-### 12.1. Filtros disponíveis
-
-**Participantes de uma turma:**
-
-```text
-GET /consultas/turmas/1/participantes?status=ATIVA
+```http
+GET /consultas/turmas/1/participantes?status=APROVADA
+GET /consultas/alunos/5/historico
+GET /consultas/matriculas/situacao?status=ATIVA&turma_id=3
 ```
 
-Permite filtrar os participantes conforme a situação da matrícula.
+### 13.2. Consultas complexas (F11)
 
-**Matrículas por situação:**
+| Endpoint GET | Descrição |
+|---|---|
+| `/consultas/cursos/mais-concluintes` | Utiliza JOIN, COUNT, GROUP BY, ORDER BY e LIMIT para classificar cursos pela quantidade de matrículas aprovadas. Aceita `limite` (1 a 50, padrão 5), `data_de` e `data_ate`, considerando o término da turma. |
+| `/consultas/turmas/{turma_id}/frequencia` | Utiliza LEFT JOIN, COUNT e GROUP BY para calcular a frequência dos participantes, excluindo matrículas canceladas. O parâmetro `apenas_abaixo_minimo=true` utiliza HAVING para identificar alunos abaixo do mínimo exigido. |
 
-```text
-GET /consultas/matriculas/situacao?status=APROVADA&curso_id=1
-```
-
-Também permite utilizar `turma_id` para restringir os resultados.
-
-**Cursos com mais concluintes:**
-
-```text
+```http
 GET /consultas/cursos/mais-concluintes?limite=5
-```
-
-Também permite informar `data_de` e `data_ate` para filtrar o período.
-
-**Frequência dos alunos:**
-
-```text
 GET /consultas/turmas/1/frequencia?apenas_abaixo_minimo=true
 ```
 
-Permite identificar alunos que não atingiram o percentual mínimo de frequência.
+As consultas utilizam dados persistidos e os relacionamentos reais das tabelas, em vez de resultados simulados ou valores fixos.
 
-## 13. Regras de negócio e funcionalidades específicas
+### 13.3. Estatísticas e agregações (F12)
 
-O projeto possui serviços responsáveis por implementar regras que vão além das validações básicas dos dados.
+**GET `/consultas/estatisticas`**
 
-### 13.1. Controle de frequência
+O endpoint apresenta os totais de alunos, cursos e turmas, as matrículas agrupadas por status e os indicadores de cada curso. São utilizadas funções de agregação como `COUNT`, `AVG` e `GROUP BY`.
 
-O serviço `app/services/frequencia.py` realiza o registro de frequência dos alunos nas aulas.
+A taxa de aprovação considera apenas matrículas concluídas: aprovadas ÷ (aprovadas + reprovadas) × 100. A média de notas por curso corresponde à média dos registros de notas de avaliação, não à média ponderada final individual. Quando não houver dados suficientes, os respectivos indicadores podem retornar `null`.
 
-A frequência é associada à matrícula e à aula, respeitando a restrição que impede registros duplicados para a mesma combinação.
+## 14. Regras de negócio
 
-### 13.2. Registro de resultados
+O projeto implementa as cinco regras principais definidas no planejamento, além de validações complementares de integridade e consistência.
 
-O serviço `app/services/resultado.py` registra as notas dos alunos nas avaliações.
+| Regra | Comportamento implementado | Arquivo |
+|---|---|---|
+| RN01 — Matrícula duplicada | Impede que o mesmo aluno seja matriculado duas vezes na mesma turma | `app/crud/matricula.py` |
+| RN02 — Limite de vagas | Conta matrículas ativas e impede novas inscrições quando a capacidade é atingida | `app/crud/matricula.py` |
+| RN03 — Frequência | Exige matrícula ativa e aula da mesma turma; impede duplicidade de presença | `app/services/frequencia.py` |
+| RN04 — Notas | Exige matrícula ativa e avaliação da mesma turma; impede nota acima do máximo e duplicidade de resultado | `app/services/resultado.py` |
+| RN05 — Aprovação e certificado | A aprovação é determinada pelo serviço de conclusão; somente matrícula aprovada pode receber um certificado, limitado a um por matrícula | `app/services/conclusao.py` e `app/services/certificado.py` |
 
-O sistema verifica as associações entre matrículas e avaliações e impede resultados duplicados para a mesma combinação.
+A aplicação também verifica referências inexistentes, validade de períodos, dependências antes de exclusões e impede a alteração manual do status para `APROVADA` ou `REPROVADA` pelo CRUD comum de matrícula.
 
-### 13.3. Cálculo de progresso e conclusão
+## 15. Funcionalidade específica — progresso e conclusão (F17)
 
-O serviço `app/services/conclusao.py` é responsável por acompanhar o progresso das matrículas e determinar se os critérios de conclusão foram atendidos.
+O serviço `app/services/conclusao.py` utiliza as relações entre Matrícula, Turma, Aula, Matrícula_Aula, Avaliação e ResultadoAvaliacao para acompanhar o desempenho dos alunos.
 
-São considerados os critérios definidos para cada turma, incluindo frequência mínima e nota mínima quando aplicável.
+### 15.1. Frequência
 
-A funcionalidade pode ser acessada por:
-
-```text
-GET /matriculas/{matricula_id}/progresso
-```
-
-A finalização pode ser solicitada por:
-
-```text
-PATCH /matriculas/{matricula_id}/finalizar
-```
-
-A matrícula recebe a situação correspondente ao resultado da avaliação dos critérios de conclusão.
-
-### 13.4. Emissão de certificados
-
-O serviço `app/services/certificado.py` controla a emissão e a consulta dos certificados.
-
-A emissão está associada a uma matrícula e utiliza as regras de conclusão do sistema.
-
-### 13.5. Estatísticas
-
-O endpoint:
+A frequência é calculada pela quantidade de presenças em relação à quantidade de aulas da turma com data até o dia da consulta:
 
 ```text
-GET /consultas/estatisticas
+frequencia = (presencas / aulas_realizadas) * 100
 ```
 
-retorna informações agregadas sobre os dados armazenados, utilizando consultas ao banco de dados.
+A frequência é calculada por número de aulas, e não pela soma de suas durações. Se nenhuma aula tiver sido realizada, o percentual retorna `null`.
 
-## 14. Tratamento de erros
+### 15.2. Desempenho
 
-A API utiliza códigos HTTP para representar o resultado das operações.
+O sistema considera os resultados das avaliações com data até o dia da consulta. As notas são normalizadas para a escala de 0 a 10 e ponderadas de acordo com o peso de cada avaliação:
 
-| Código | Significado |
+```text
+nota_normalizada = (nota_obtida * 10) / nota_maxima
+nota_final = soma(nota_normalizada * peso) / soma(peso)
+```
+
+Se ainda não houver resultados para calcular a média, a nota retorna `null`.
+
+### 15.3. Determinação e persistência da conclusão
+
+A finalização exige matrícula ativa, data de término da turma atingida, ao menos uma aula realizada, registros de frequência para todas as aulas contabilizadas e resultados de todas as avaliações da turma. Se houver nota mínima configurada, deve existir nota calculada.
+
+Uma matrícula apta à finalização recebe a situação `APROVADA` se atingir a frequência mínima e, quando exigida, a nota mínima. Caso contrário, recebe `REPROVADA`. Se ainda não puder finalizar, a situação registrada é mantida. As matrículas canceladas, abandonadas ou inativas não são finalizadas pelo serviço.
+
+| Frequência mínima | Nota mínima | Frequência obtida | Nota obtida | Resultado ao finalizar |
+|---:|---:|---:|---:|---|
+| 75% | 7,0 | 100% | 8,5 | APROVADA |
+| 75% | 7,0 | 0% | 8,5 | REPROVADA |
+| 75% | 7,0 | 100% | 5,0 | REPROVADA |
+
+A consulta `GET /matriculas/{matricula_id}/progresso` retorna a frequência, a nota final, os critérios mínimos, a situação calculada e o indicador `pode_finalizar`. A operação `PATCH /matriculas/{matricula_id}/finalizar` grava o status definitivo no banco de dados. O certificado pode ser emitido após a aprovação persistida.
+
+O sistema mantém as matrículas e seus registros de participação, notas e status de conclusão. Na implementação atual, os percentuais, as médias e os critérios exibidos na consulta de progresso são recalculados a partir dos registros e configurações vigentes, não armazenados como uma fotografia imutável do resultado final.
+
+## 16. Tratamento de erros
+
+A API utiliza `HTTPException`, validações dos schemas e tratamento de exceções de integridade para comunicar erros de operação. Nos pontos em que `IntegrityError` é tratado, utiliza-se `rollback()` para desfazer a transação que falhou.
+
+| Código HTTP | Aplicação |
 |---|---|
-| 200 | Operação realizada com sucesso |
+| 200 | Consulta ou atualização bem-sucedida |
 | 201 | Registro criado |
-| 204 | Operação concluída sem conteúdo de resposta |
+| 204 | Exclusão ou cancelamento realizado sem corpo de resposta |
 | 400 | Requisição inválida ou regra de negócio não atendida |
-| 404 | Recurso não encontrado |
-| 409 | Conflito ou violação de integridade |
-| 422 | Dados recebidos inválidos |
+| 404 | Registro ou referência não encontrada |
+| 409 | Conflito de cadastro, duplicidade, turma lotada ou dependência de registros |
+| 422 | Dados inválidos segundo as validações da API |
 | 500 | Erro interno inesperado |
 
-O sistema utiliza mecanismos de tratamento de erros para situações como registros inexistentes, duplicidades, violações de integridade e tentativas de exclusão de registros vinculados a outras entidades.
+Falhas gerais de conexão e outros erros inesperados do banco não possuem tratamento centralizado específico nesta versão. O código 500 não representa um tratamento personalizado para todas essas situações.
 
-## 15. Fluxo recomendado para novos integrantes
+## 17. Roteiro de demonstração do trabalho
 
-Para que todos os integrantes executem o projeto corretamente em suas máquinas, a sequência recomendada é:
+A apresentação utiliza o banco previamente povoado e a documentação interativa do Swagger. Os IDs dos exemplos devem ser ajustados de acordo com os registros disponíveis no banco local.
 
-1. Clonar o repositório GitHub.
-2. Entrar na pasta do projeto.
-3. Criar o ambiente virtual `.venv`.
-4. Ativar o ambiente virtual.
-5. Instalar as dependências com `pip install -r requirements.txt`.
-6. Criar o banco de dados PostgreSQL local.
-7. Criar o arquivo `.env` com a variável `DATABASE_URL`.
-8. Executar `python -m alembic current` para verificar a versão do banco.
-9. Executar `python -m alembic upgrade head` para aplicar as migrações pendentes.
-10. Executar `python -m scripts.povoamento` para inserir os dados iniciais, caso o banco esteja vazio.
-11. Executar `uvicorn app.main:app --reload` para iniciar a API.
-12. Acessar `http://127.0.0.1:8000/docs` para testar as funcionalidades.
+| Requisito | Demonstração sugerida |
+|---|---|
+| F1 a F5 — CRUD | Cadastrar um aluno de teste, listar, consultar por ID, atualizar e excluir; demonstrar o cancelamento de matrícula |
+| F6 — Relacionamentos | Apresentar Curso–Turma (1:N), Aluno–Turma via Matrícula (N:N) e Matrícula–Certificado (1:1 opcional) |
+| F7 — CRUD Routers | Mostrar os arquivos de `app/routers/` e o registro em `app/main.py` |
+| F8 — Paginação | Executar `GET /alunos/` com `page=1`, `size=5`, e depois `page=2` |
+| F9 — Filtros | Buscar alunos por nome, matrículas por turma e matrículas por situação |
+| F10 — Consultas relacionadas | Executar participantes da turma, histórico do aluno e matrículas por situação |
+| F11 — Consultas complexas | Mostrar cursos com mais concluintes e frequência abaixo do mínimo |
+| F12 — Estatísticas | Executar `GET /consultas/estatisticas` e explicar as agregações |
+| F13 — Regras de negócio | Demonstrar pelo menos três regras, como matrícula duplicada, limite de vagas e nota inválida para a avaliação |
+| F14 — Alembic | Mostrar `history`, `current`, os arquivos das duas revisões e o atributo `modalidade` em Turma |
+| F15 — PostgreSQL e SQLite | Demonstrar a configuração da conexão e a execução da API com os dois bancos, utilizando os respectivos dados |
+| F16 — Povoamento | Mostrar `scripts/povoamento.py` e os registros disponíveis antes de iniciar a demonstração |
+| F17 — Funcionalidade específica | Consultar progresso, explicar aprovação/reprovação, finalizar uma matrícula elegível e consultar ou emitir certificado |
+| F18 — Erros | Demonstrar respostas 400, 404, 409 e 422, explicando as validações e o tratamento de integridade |
 
-### Quando receber atualizações dos demais integrantes
+### 17.1. Comprovação da persistência no PostgreSQL
 
-Sempre que houver alterações enviadas ao repositório:
+No pgAdmin, selecione o banco `sistema_curso` e abra o Query Tool. As consultas a seguir permitem visualizar os dados já inseridos e a versão de migração registrada:
 
-1. Salvar ou realizar commit das alterações locais.
-2. Executar `git pull origin main` para receber as atualizações da branch principal, considerando a branch utilizada pela equipe.
-3. Atualizar as dependências caso o `requirements.txt` tenha sido modificado.
-4. Executar `python -m alembic upgrade head` para aplicar eventuais novas migrações.
-5. Reiniciar a aplicação.
-6. Testar as funcionalidades atualizadas.
+```sql
+SELECT * FROM public.aluno ORDER BY id;
+SELECT * FROM public.matricula ORDER BY id;
+SELECT * FROM public.certificado ORDER BY id;
+SELECT id, modalidade FROM public.turma ORDER BY id;
+SELECT * FROM public.alembic_version;
+```
 
-Não é necessário executar novamente o povoamento quando o banco já possuir os dados iniciais.
+Para demonstrar que os dados permanecem persistidos, realize uma operação pelo Swagger, consulte o registro diretamente no PostgreSQL e reinicie a aplicação. O registro deve continuar disponível após a reinicialização.
 
-## 16. Cuidados importantes durante o desenvolvimento
-
-- Não excluir ou recriar o banco para aplicar alterações estruturais.
-- Não compartilhar o arquivo `.env` pelo GitHub.
-- Sempre aplicar as migrações recebidas dos demais integrantes antes de executar a aplicação quando houver alterações no esquema.
-- Não modificar diretamente o banco sem considerar os modelos e as migrações.
-- Respeitar as chaves estrangeiras e as restrições de integridade.
-- Evitar cadastrar registros duplicados.
-- Não executar o povoamento repetidamente em bancos que já possuem dados.
-- Manter os CRUDs, routers, models e services organizados em seus respectivos diretórios.
-- Testar as operações pelo Swagger antes de considerar uma funcionalidade concluída.
+As migrações e o povoamento já foram executados no PostgreSQL local. A troca para SQLite segue a configuração da seção 7.2; a execução em cada banco deve ser demonstrada no ambiente correspondente.
 
 ---
 
-## 17. Considerações finais
-
-O Sistema de Cursos e Capacitações foi desenvolvido para centralizar o gerenciamento das atividades de uma organização responsável pela oferta de cursos e treinamentos.
-
-A aplicação utiliza uma arquitetura organizada em camadas, persistência relacional e migrações controladas, permitindo que diferentes integrantes trabalhem em funcionalidades específicas sem comprometer a estrutura geral do sistema.
-
-A utilização de PostgreSQL, SQLModel, FastAPI e Alembic permite manter os dados persistidos, organizar as operações e evoluir o esquema do banco de maneira controlada.
-
-O projeto busca atender às necessidades de gerenciamento das capacitações, oferecendo recursos para acompanhar matrículas, frequência, avaliações, desempenho e conclusão dos alunos.
-
-**Disciplina:** QXD0099 – Desenvolvimento de Software para Persistência  
-**Instituição:** Universidade Federal do Ceará – Campus Quixadá  
-**Trabalho:** TP2 – Desenvolvimento de Sistema com Persistência Relacional  
-**Tema:** Tema 16 – Sistema de Cursos e Capacitações
-
-**Integrantes:** [Inserir nomes dos integrantes da equipe]
+Projeto acadêmico desenvolvido para a disciplina de Desenvolvimento de Software para Persistência — UFC, Campus Quixadá.
