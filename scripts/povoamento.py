@@ -27,6 +27,7 @@ from app.crud.avaliacao import criar_avaliacao
 from app.services.frequencia import registrar_frequencia
 from app.services.resultado import registrar_resultado
 from app.services.conclusao import finalizar_matricula
+from app.services.certificado import emitir_certificado
 
 def povoar_alunos(session: Session):
     nomes = [
@@ -294,6 +295,13 @@ def povoar_conclusoes(matriculas, session: Session):
                 matricula.id,
                 session
             )
+
+            # Emitir certificado para matrículas aprovadas
+            if matricula.status == MatriculaStatus.APROVADA:
+                emitir_certificado(
+                    matricula.id,
+                    session
+                )
 
     # Cancelar uma matrícula da turma em andamento
     cancelar_matricula(
