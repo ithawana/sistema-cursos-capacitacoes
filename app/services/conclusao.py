@@ -94,3 +94,29 @@ def consultar_progresso(matricula_id: int, session: Session):
         "situacao": situacao,
         "pode_finalizar": pode_finalizar
     }
+
+def finalizar_matricula(matricula_id: int, session: Session):
+
+    matricula = session.get(Matricula, matricula_id)
+
+    if not matricula:
+        raise HTTPException(
+            status_code=404,
+            detail="Matrícula não encontrada"
+        )
+
+    progresso = consultar_progresso(matricula_id, session)
+
+    if not progresso["pode_finalizar"]:
+        raise HTTPException(
+            status_code=400,
+            detail="A matrícula ainda não pode ser concluída"
+        )
+
+    matricula.status = progresso["situacao"]
+
+    session.add(matricula)
+    session.commit()
+    session.refresh(matricula)
+
+    return matricula

@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlmodel import Session, select
+from datetime import date
 
 from app.models.matricula import Matricula, MatriculaStatus
 from app.models.aula import Aula
@@ -25,6 +26,7 @@ def registrar_frequencia(dados: MatriculaAulaCreate, session: Session):
             status_code=404,
             detail="Aula não encontrada"
         )
+
 
     if matricula.turma_id != aula.turma_id:
         raise HTTPException(
