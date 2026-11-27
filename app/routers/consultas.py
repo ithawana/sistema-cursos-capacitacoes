@@ -1,7 +1,5 @@
 
-from datetime import date
-
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session
 
 from app.database import getSession
@@ -57,17 +55,9 @@ def matriculas_por_situacao(
 @router.get("/cursos/mais-concluintes", response_model=list[CursoConcluintes])
 def cursos_mais_concluintes(
     limite: int = Query(default=5, ge=1, le=50),
-    data_de: date | None = Query(default=None, description="Turmas encerradas a partir de"),
-    data_ate: date | None = Query(default=None, description="Turmas encerradas até"),
     session: Session = Depends(getSession),
 ):
-    if data_de and data_ate and data_de > data_ate:
-        raise HTTPException(
-            status_code=400,
-            detail="data_de não pode ser maior que data_ate"
-        )
-
-    return crud.cursos_mais_concluintes(session, limite, data_de, data_ate)
+    return crud.cursos_mais_concluintes(session, limite)
 
 
 # Frequência dos alunos

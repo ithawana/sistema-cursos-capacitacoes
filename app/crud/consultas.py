@@ -128,8 +128,6 @@ def matriculas_por_situacao(
 def cursos_mais_concluintes(
     session: Session,
     limite: int = 5,
-    data_de: date | None = None, # filtra de xx/xx/xxxx até xx/xx/xxxx
-    data_ate: date | None = None,
 ):
     total_concluintes = func.count(Matricula.id).label("total_concluintes")
 
@@ -142,17 +140,6 @@ def cursos_mais_concluintes(
         .join(Turma, Turma.curso_id == Curso.id)
         .join(Matricula, Matricula.turma_id == Turma.id)
         .where(Matricula.status == MatriculaStatus.APROVADA)
-    )
-
-    # Período considerado pela data de término da turma
-    if data_de:
-        consulta = consulta.where(Turma.data_fim >= data_de)
-
-    if data_ate:
-        consulta = consulta.where(Turma.data_fim <= data_ate)
-
-    consulta = (
-        consulta
         .group_by(Curso.id, Curso.nome)
         .order_by(total_concluintes.desc(), Curso.nome)
         .limit(limite)
